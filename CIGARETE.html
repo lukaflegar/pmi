@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="hr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zalihe Cigareta - Blagajne</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+        }
+        
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 1.5rem;
+            margin-bottom: 5px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+        
+        .controls {
+            padding: 15px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        
+        th {
+            background: #343a40;
+            color: white;
+            padding: 12px 8px;
+            text-align: left;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-size: 0.8rem;
+        }
+        
+        td {
+            padding: 8px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .product-cell {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            min-width: 200px;
+        }
+        
+        .cigareta-image {
+            width: 30px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 4px;
+            border: 1px solid #dee2e6;
+            background: #f8f9fa;
+        }
+        
+        .cigareta-name {
+            font-weight: 500;
+            color: #495057;
+            flex: 1;
+        }
+        
+        .quantity-input {
+            width: 50px;
+            padding: 4px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+        
+        .quantity-input:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+        }
+        
+        .total-cell {
+            font-weight: bold;
+            color: #dc3545;
+            background: #fff5f5;
+            min-width: 60px;
+            text-align: center;
+        }
+        
+        .summary {
+            padding: 15px;
+            background: #e9f7ef;
+            border-top: 3px solid #28a745;
+            text-align: center;
+        }
+        
+        .summary h3 {
+            color: #155724;
+            margin-bottom: 10px;
+        }
+        
+        .total-needed {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #dc3545;
+        }
+        
+        .no-image {
+            width: 30px;
+            height: 40px;
+            background: #e9ecef;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: #6c757d;
+            text-align: center;
+            line-height: 1;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.2rem;
+            }
+            
+            th, td {
+                padding: 6px 4px;
+            }
+            
+            .quantity-input {
+                width: 40px;
+            }
+            
+            .product-cell {
+                min-width: 150px;
+                gap: 5px;
+            }
+            
+            .cigareta-image {
+                width: 25px;
+                height: 35px;
+            }
+            
+            .no-image {
+                width: 25px;
+                height: 35px;
+                font-size: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📦 Zalihe Cigareta</h1>
+            <p>Praćenje potrebnih količina po blagajnama</p>
+        </div>
+        
+        <div class="controls">
+            <button class="btn btn-primary" onclick="calculateTotal()">📊 Izračunaj ukupno</button>
+            <button class="btn btn-secondary" onclick="clearAll()">🗑️ Očisti sve</button>
+        </div>
+        
+        <div class="table-container">
+            <table id="cigaretaTable">
+                <thead>
+                    <tr>
+                        <th>Proizvod</th>
+                        <th>Blag. 1</th>
+                        <th>Blag. 2</th>
+                        <th>Blag. 3</th>
+                        <th>Blag. 4</th>
+                        <th>Blag. 5</th>
+                        <th>Ukupno</th>
+                    </tr>
+                </thead>
+                <tbody id="tableBody">
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="summary">
+            <h3>📋 Sažetak za skladište</h3>
+            <div class="total-needed" id="totalSummary">Ukupno potrebno: 0 paketa</div>
+        </div>
+    </div>
+
+    <script>
+        const cigarete = [
+            'Marlboro Red',
+            'Marlboro Red 23',
+            'Marlboro Gold',
+            'Marlboro Gold 100s',
+            'Marlboro Gold 23',
+            'Marlboro Red Touch',
+            'Marlboro Touch',
+            'Marlboro Fine Touch',
+            'Marlboro Line Gold',
+            'Marlboro Line Blue',
+            'Philip Morris Blue',
+            'Philip Morris Supreme',
+            'Chesterfield Original',
+            'Chesterfield Original 100s',
+            'Chesterfield Blue',
+            'Chesterfield Blue 100s',
+            'Chesterfield Silver 100s',
+            'Chesterfield Tuned Blue',
+            'Chesterfield Tuned Blue XL',
+            'Chesterfield Tuned Aqua',
+            'Chesterfield Tuned Aqua XL',
+            'Chesterfield Linea Blue',
+            'Chesterfield Linea Rose',
+            'TEREA Russet',
+            'TEREA Bronze',
+            'TEREA Sienna',
+            'TEREA Teak',
+            'TEREA Amber',
+            'TEREA Yellow',
+            'TEREA Silver',
+            'TEREA Tourquoise',
+            'Fiit Regular Copper',
+            'Fiit Regular',
+            'Fiit Regular Stone',
+            'Fiit Regular Sky',
+            'Fiit Element/Stream'
+        ];
+
+        // Funkcija za pretvaranje naziva u naziv datoteke
+        function getImageFileName(cigaretaName) {
+            return cigaretaName
+                .toLowerCase()
+                .replace(/\s+/g, '_')
+                .replace(/[^\w]/g, '_')
+                .replace(/_+/g, '_')
+                .replace(/^_|_$/g, '');
+        }
+
+        // Funkcija za pronalaženje slike u različitim formatima
+        function createImageElement(cigaretaName, index) {
+            const baseName = getImageFileName(cigaretaName);
+            const extensions = ['jpg', 'jpeg', 'png', 'webp'];
+            
+            const img = document.createElement('img');
+            img.className = 'cigareta-image';
+            img.alt = cigaretaName;
+            
+            let currentExtensionIndex = 0;
+            
+            function tryNextExtension() {
+                if (currentExtensionIndex >= extensions.length) {
+                    // Ako nijedna ekstenzija ne radi, prikaži placeholder
+                    img.style.display = 'none';
+                    img.nextElementSibling.style.display = 'flex';
+                    return;
+                }
+                
+                img.src = `images/${baseName}.${extensions[currentExtensionIndex]}`;
+                currentExtensionIndex++;
+            }
+            
+            img.onerror = tryNextExtension;
+            
+            // Počni s prvom ekstenzijom
+            tryNextExtension();
+            
+            return img;
+        }
+
+        function initializeTable() {
+            const tableBody = document.getElementById('tableBody');
+            cigarete.forEach((cigareta, index) => {
+                const row = document.createElement('tr');
+                
+                // Stvori ćeliju za proizvod
+                const productCell = document.createElement('td');
+                const productDiv = document.createElement('div');
+                productDiv.className = 'product-cell';
+                
+                // Stvori sliku sa automatskim pokušavanjem različitih formata
+                const img = createImageElement(cigareta, index);
+                
+                // Stvori placeholder za slučaj kada slika ne postoji
+                const noImageDiv = document.createElement('div');
+                noImageDiv.className = 'no-image';
+                noImageDiv.style.display = 'none';
+                noImageDiv.innerHTML = 'No<br>IMG';
+                
+                // Stvori naziv
+                const nameSpan = document.createElement('span');
+                nameSpan.className = 'cigareta-name';
+                nameSpan.textContent = cigareta;
+                
+                // Dodaj sve elemente
+                productDiv.appendChild(img);
+                productDiv.appendChild(noImageDiv);
+                productDiv.appendChild(nameSpan);
+                productCell.appendChild(productDiv);
+                
+                // Ostali stupci
+                row.appendChild(productCell);
+                row.innerHTML += `
+                    <td><input type="number" class="quantity-input" id="b1_${index}" min="0" step="0.5" onchange="updateRowTotal(${index})"></td>
+                    <td><input type="number" class="quantity-input" id="b2_${index}" min="0" step="0.5" onchange="updateRowTotal(${index})"></td>
+                    <td><input type="number" class="quantity-input" id="b3_${index}" min="0" step="0.5" onchange="updateRowTotal(${index})"></td>
+                    <td><input type="number" class="quantity-input" id="b4_${index}" min="0" step="0.5" onchange="updateRowTotal(${index})"></td>
+                    <td><input type="number" class="quantity-input" id="b5_${index}" min="0" step="0.5" onchange="updateRowTotal(${index})"></td>
+                    <td class="total-cell" id="total_${index}">0</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+        }
+
+        function updateRowTotal(rowIndex) {
+            let total = 0;
+            for (let i = 1; i <= 5; i++) {
+                const input = document.getElementById(`b${i}_${rowIndex}`);
+                const value = parseFloat(input.value) || 0;
+                total += value;
+            }
+            document.getElementById(`total_${rowIndex}`).textContent = total;
+            updateGrandTotal();
+        }
+
+        function updateGrandTotal() {
+            let grandTotal = 0;
+            cigarete.forEach((_, index) => {
+                const rowTotal = parseFloat(document.getElementById(`total_${index}`).textContent) || 0;
+                grandTotal += rowTotal;
+            });
+            document.getElementById('totalSummary').textContent = `Ukupno potrebno: ${grandTotal} paketa`;
+        }
+
+        function calculateTotal() {
+            cigarete.forEach((_, index) => {
+                updateRowTotal(index);
+            });
+        }
+
+        function clearAll() {
+            if (confirm('Jeste li sigurni da želite obrisati sve podatke?')) {
+                cigarete.forEach((_, index) => {
+                    for (let i = 1; i <= 5; i++) {
+                        document.getElementById(`b${i}_${index}`).value = '';
+                    }
+                    document.getElementById(`total_${index}`).textContent = '0';
+                });
+                updateGrandTotal();
+            }
+        }
+
+        // Inicijaliziraj tablicu kad se stranica učita
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeTable();
+        });
+    </script>
+</body>
+</html>
